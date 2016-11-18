@@ -10,10 +10,10 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization
 # AES libraries in CBC mode
-from cryptography.hazmat.primitives.ciphers import base, algorithms, modes
+from cryptography.hazmat.primitives.ciphers import base, algorithms, modes, Cipher
 import base64
 from Crypto.Cipher import AES
-from Crypto import Cipher
+#from Crypto import Cipher
 from Crypto import Random
 from cryptography.hazmat.primitives import padding as padding2
 from cryptography import x509
@@ -137,7 +137,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 	hello_2_received = str(sock.recv(int(hello_2_size[0])), "utf-8")
 	# 3. Write "Received Hello" and store it. 
 	print("handshake message from server:" + hello_2_received)
-	hello_2_received_path = open('hello.txt','w+')
+	hello_2_received_path = open('hello_2.txt','w+')
 	hello_2_received_path.write(hello_received)
 	hello_2_received_path.close()
 	# Send the Certificate PEM file to GameDownloader/Server
@@ -191,6 +191,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 	# Receive Game binary from GameDownloader
 	# 1. Receive the size of the Game binary from server
 	game_binary_size = struct.unpack("i", sock.recv(4))
+	print(game_binary_size)
 	# 2. Receive the Game binary from server
 	game_binary_received = sock.recv(int(game_binary_size[0]))
 	# 2. Decrypt the Game binary with AES session key
@@ -204,14 +205,16 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 			#print(decryptor.update(padded_message) + decryptor.finalize())
 	# 3. write the secret message ans store it
 			#decrypted_secret_message = decryptor.update(padded_message) + decryptor.finalize()
-			decrypted_game_binary = decryptor.update(game_binary_received) + decryptor.finalize()
-			print("secret message received from server: ", decrypted_game_binary)
+			decrypted_game_binary = decryptor.update(game_binary_received)
+			while len(decrypted_game_binary) < int(game_binary_size[0]):
+				decrypted_game_binary = decrypted_game_binary + decryptor.update(game_binary_received)
 			unpadder = padding2.PKCS7(128).unpadder()
 			unpadder_game_binary = unpadder.update(decrypted_game_binary)
-			game_binary_path = open('game_binary.txt','w+')
-			game_binary_path.write(str(unpadder_game_binary,"utf-8"))
+			game_binary_path = open('game_binary.bin','wb')
+			game_binary_path.write(unpadder_game_binary)
 			game_binary_path.close()
 			#print(str(unpadder_secret_message))
+
 	# Send bye to GameDownloader
 	# 1. Send the size in byte of bye to Server/Gamedownloader
 	msg_size = len("bye")
