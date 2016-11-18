@@ -191,9 +191,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 	# Receive Game binary from GameDownloader
 	# 1. Receive the size of the Game binary from server
 	game_binary_size = struct.unpack("i", sock.recv(4))
-	print(game_binary_size)
+	#print(game_binary_size)
+	#print(int(game_binary_size[0]))
 	# 2. Receive the Game binary from server
-	game_binary_received = sock.recv(int(game_binary_size[0]))
+	game_binary_received = bytes()
+	while len(game_binary_received) < int(game_binary_size[0]):
+		game_binary_received += sock.recv(int(game_binary_size[0]))
+		print(len(game_binary_received))
 	# 2. Decrypt the Game binary with AES session key
 	with open('AES_Session_key.pem','rb') as AES_Session_key:
 		with open('IV.txt', 'rb') as IV: 
@@ -206,12 +210,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 	# 3. write the secret message ans store it
 			#decrypted_secret_message = decryptor.update(padded_message) + decryptor.finalize()
 			decrypted_game_binary = decryptor.update(game_binary_received)
-			while len(decrypted_game_binary) < int(game_binary_size[0]):
-				decrypted_game_binary = decrypted_game_binary + decryptor.update(game_binary_received)
-			unpadder = padding2.PKCS7(128).unpadder()
-			unpadder_game_binary = unpadder.update(decrypted_game_binary)
+			#unpadder = padding2.PKCS7(128).unpadder()
+			#unpadder_game_binary = unpadder.update(decrypted_game_binary)
 			game_binary_path = open('game_binary.bin','wb')
-			game_binary_path.write(unpadder_game_binary)
+			game_binary_path.write(decrypted_game_binary)
 			game_binary_path.close()
 			#print(str(unpadder_secret_message))
 
@@ -222,6 +224,10 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 	sock.sendall( byte_msg_size )
 	# 2. Send the student ID string to CA
 	sock.sendall(bytes("bye", 'utf-8'))
+	#print(msg_size)
+
+
+# Reverse the binary file into  assembly file
 
 
 
