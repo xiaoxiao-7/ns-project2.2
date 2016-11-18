@@ -69,6 +69,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 	hello_received_path.write(hello_received)
 	hello_received_path.close()
 
+
+
+#,mmmmmmmm
+
+
+
+
 	#public_key = csr.public_key()
 	#isinstance(public_key, rsa.RSAPublicKey)
 
@@ -96,6 +103,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 		with open("csr.pem", "wb") as f:
 			f.write(csr.public_bytes(serialization.Encoding.PEM))
 	# 1. Send the size in byte of CSR to CA
+
 	# 2. Send the CSR string to CA
 
 	# Receive the Certificate in PEM format
