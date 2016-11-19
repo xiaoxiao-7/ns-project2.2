@@ -197,7 +197,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
 	game_binary_received = bytes()
 	while len(game_binary_received) < int(game_binary_size[0]):
 		game_binary_received += sock.recv(int(game_binary_size[0]))
-		print(len(game_binary_received))
+		#print(len(game_binary_received))
 	# 2. Decrypt the Game binary with AES session key
 	with open('AES_Session_key.pem','rb') as AES_Session_key:
 		with open('IV.txt', 'rb') as IV: 
